@@ -7,6 +7,6 @@ namespace WebAPI.Rest.Bootstrap.Core
 {
     public static class Configuration
     {
-
+        public static bool RequiresContractMapping { get; set; }
     }
 }

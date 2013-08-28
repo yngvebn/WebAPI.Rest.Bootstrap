@@ -17,7 +17,7 @@ namespace WebAPI.Rest.Bootstrap.Web.Controllers
         }
 
         [GET("manufacturers/{id}"), HttpGet]
-        public HttpResponseMessage<ManufacturerResponse> GetManufacturer(int id)
+        public HttpResponseMessage<ManufacturerResponse> GetManufacturer(string id)
         {
             return new HttpResponseMessage<ManufacturerResponse>();
         }

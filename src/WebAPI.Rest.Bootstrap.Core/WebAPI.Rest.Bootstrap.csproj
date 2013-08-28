@@ -88,7 +88,7 @@
     <Compile Include="Core\Configuration.cs" />
     <Compile Include="Core\Exceptions\ActionNotFoundForModel.cs" />
     <Compile Include="Core\Exceptions\ResponseMapNotFoundException.cs" />
-    <Compile Include="Core\ActionFilters\StrapRequestModel.cs" />
+    <Compile Include="Core\ActionFilters\RequestInterceptor.cs" />
     <Compile Include="Castle\WindsorDependencyResolver.cs" />
     <Compile Include="Castle\WindsorDependencyScope.cs" />
     <Compile Include="Implementations\DataProviders\ManageDataProviders.cs" />
