@@ -58,7 +58,7 @@ namespace WebAPI.Rest.Bootstrap.Core.ActionFilters
 
 
 
-            var contract = _contractConstructors.ConstructContractFromRouteData(destinationMap.SourceType, actionExecutedContext.ActionContext.ActionArguments);
+            var contract = _contractConstructors.ConstructContractFromRouteData(destinationMap.SourceType, actionExecutedContext.ActionContext);
 
             _dataProviders.FillModelFromProviders(contract.GetType(), contract);
 
