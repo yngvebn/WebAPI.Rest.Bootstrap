@@ -25,6 +25,7 @@
         <dependency id="AutoMapper" version="3.0.0"  />
         <dependency id="Castle.Windsor" version="3.2.1" />
         <dependency id="Microsoft.AspNet.WebApi.Client" />
+        <dependency id="Microsoft.Net.Http" version="2.2.13"/>
       </group>
     </dependencies>
     <references>
