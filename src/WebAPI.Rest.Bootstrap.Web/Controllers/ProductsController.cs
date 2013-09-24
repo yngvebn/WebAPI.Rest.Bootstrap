@@ -21,6 +21,12 @@ namespace WebAPI.Rest.Bootstrap.Web.Controllers
             return new HttpResourceMessage<ProductResponse>();
         }
         
+        [DELETE("products/{sku}"), HttpDelete]
+        public HttpResponseMessage<ProductResponse> DeleteProduct(string sku)
+        {
+            return new HttpResponseMessage<ProductResponse>();
+        }
+
         [GET("product/{sku}"), HttpGet]
         public HttpResponseMessage<ProductResponse> GetProduct(string sku)
         {

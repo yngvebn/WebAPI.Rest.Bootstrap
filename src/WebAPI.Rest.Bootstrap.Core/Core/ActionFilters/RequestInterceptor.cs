@@ -48,7 +48,8 @@ namespace WebAPI.Rest.Bootstrap.Core.ActionFilters
 
         public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
         {
-            if (actionExecutedContext.Request.Method == HttpMethod.Put || actionExecutedContext.Request.Method == HttpMethod.Post)
+            HttpMethod httpMethod = actionExecutedContext.Request.Method;
+            if (httpMethod == HttpMethod.Put || httpMethod == HttpMethod.Post || httpMethod == HttpMethod.Delete)
             {
                 var arguments = actionExecutedContext.ActionContext.ActionArguments;
                 object requestObject = FindObjects(arguments, false).SingleOrDefault().Value;
@@ -63,15 +64,33 @@ namespace WebAPI.Rest.Bootstrap.Core.ActionFilters
                 AutoMapper.Mapper.Map(requestObject, command, requestObject.GetType(), commandType);
                 command.TryToSetPropertiesFromDictionary(extraArguments);
                 var result = _commandExecutor.ExecuteCommand(command);
-                if(result.Status == CommandStatus.Executed)
+                if (result.Status == CommandStatus.Executed)
                 {
-                    var destinationMap = AutoMapper.Mapper.GetAllTypeMaps().SingleOrDefault(map => map.DestinationType == innerType);
-                    var returnObject = Activator.CreateInstance(innerType);
-                    AutoMapper.Mapper.Map(result.Data, returnObject, destinationMap.SourceType, destinationMap.DestinationType);
-                    _linkPopulator.Populate(innerType, returnObject);
-                    actionExecutedContext.Response.Content = new ObjectContent(typeof(BaseApiResponse), returnObject as BaseApiResponse, _configuration.Formatters.JsonFormatter);
+                    if (httpMethod == HttpMethod.Post ||
+                        httpMethod == HttpMethod.Put)
+                    {
+                        var destinationMap =
+                            AutoMapper.Mapper.GetAllTypeMaps().SingleOrDefault(map => map.DestinationType == innerType);
+                        var returnObject = Activator.CreateInstance(innerType);
+                        AutoMapper.Mapper.Map(result.Data, returnObject, destinationMap.SourceType,
+                                              destinationMap.DestinationType);
+                        _linkPopulator.Populate(innerType, returnObject);
+                        actionExecutedContext.Response.StatusCode = httpMethod == HttpMethod.Post
+                                                                        ? HttpStatusCode.Created
+                                                                        : HttpStatusCode.OK;
+                        actionExecutedContext.Response.Content = new ObjectContent(typeof (BaseApiResponse),
+                                                                                   returnObject as BaseApiResponse,
+                                                                                   _configuration.Formatters
+                                                                                                 .JsonFormatter);
+                    }
+                    else
+                    {
+                        actionExecutedContext.Response.StatusCode = HttpStatusCode.NoContent;
+
+                        actionExecutedContext.Response.Content = new StringContent(string.Empty);
+                    }
                 }
-                if(result.Status != CommandStatus.Executed)
+                if (result.Status != CommandStatus.Executed)
                 {
                     actionExecutedContext.Response = new HttpResponseMessage(HttpStatusCode.InternalServerError)
                         {
@@ -80,7 +99,7 @@ namespace WebAPI.Rest.Bootstrap.Core.ActionFilters
                 }
 
             }
-            if (actionExecutedContext.Request.Method == HttpMethod.Get)
+            if (httpMethod == HttpMethod.Get)
             {
                 var returnType = actionExecutedContext.ActionContext.ActionDescriptor.ReturnType;
                 var innerType = returnType.GetGenericArguments().First();
@@ -118,15 +137,15 @@ namespace WebAPI.Rest.Bootstrap.Core.ActionFilters
         private Dictionary<string, object> FindObjects(Dictionary<string, object> arguments, bool isSystemType)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();
-            foreach(var key in arguments.Keys)
+            foreach (var key in arguments.Keys)
             {
-                
+
                 if (arguments[key].GetType().Namespace.StartsWith("System") && isSystemType)
                 {
                     dict.Add(key, arguments[key]);
 
                 }
-                if(!arguments[key].GetType().Namespace.StartsWith("System") && !isSystemType)
+                if (!arguments[key].GetType().Namespace.StartsWith("System") && !isSystemType)
                 {
                     dict.Add(key, arguments[key]);
                 }
