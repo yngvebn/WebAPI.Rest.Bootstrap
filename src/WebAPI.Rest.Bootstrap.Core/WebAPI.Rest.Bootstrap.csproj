@@ -84,13 +84,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Castle\Installers\CommandsInstaller.cs" />
+    <Compile Include="Castle\Interceptors\Class1.cs" />
     <Compile Include="Core\Attributes\ExplodeAttribute.cs" />
+    <Compile Include="Core\Commands\Command.cs" />
+    <Compile Include="Core\Commands\CommandErrorCode.cs" />
+    <Compile Include="Core\Commands\CommandExecutor.cs" />
+    <Compile Include="Core\Commands\CommandResult.cs" />
+    <Compile Include="Core\Commands\CommandStatus.cs" />
+    <Compile Include="Core\Commands\ICommandExecutor.cs" />
+    <Compile Include="Core\Commands\ICommandHandler.cs" />
     <Compile Include="Core\Configuration.cs" />
     <Compile Include="Core\Exceptions\ActionNotFoundForModel.cs" />
     <Compile Include="Core\Exceptions\ResponseMapNotFoundException.cs" />
     <Compile Include="Core\ActionFilters\RequestInterceptor.cs" />
     <Compile Include="Castle\WindsorDependencyResolver.cs" />
     <Compile Include="Castle\WindsorDependencyScope.cs" />
+    <Compile Include="Core\ReflectionHelpers.cs" />
     <Compile Include="Implementations\DataProviders\ManageDataProviders.cs" />
     <Compile Include="Castle\Installers\ContractConstructor.cs" />
     <Compile Include="Castle\Installers\Filters.cs" />

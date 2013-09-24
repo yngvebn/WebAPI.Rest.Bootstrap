@@ -15,10 +15,21 @@ namespace WebAPI.Rest.Bootstrap.Web.Controllers
             return new HttpResponseMessage<ProductsResponse>();
         }
 
+        [PUT("products/{sku}"), HttpPut]
+        public HttpResourceMessage<ProductResponse> UpdateProduct(string sku, UpdateProductRequest request)
+        {
+            return new HttpResourceMessage<ProductResponse>();
+        }
+        
         [GET("product/{sku}"), HttpGet]
-        public HttpResponseMessage<ProductResponse>  GetProduct(string sku)
+        public HttpResponseMessage<ProductResponse> GetProduct(string sku)
         {
             return new HttpResponseMessage<ProductResponse>();
         }
+    }
+
+    public class UpdateProductRequest
+    {
+        public string Name { get; set; }
     }
 }

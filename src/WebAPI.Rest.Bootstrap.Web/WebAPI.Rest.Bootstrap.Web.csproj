@@ -140,7 +140,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\AttributeRoutingHttpConfig.cs" />
+    <Compile Include="Commands\Handlers\HandleUpdateProductCommand.cs" />
+    <Compile Include="Commands\UpdateProductCommand.cs" />
     <Compile Include="Controllers\ManufacturersController.cs" />
+    <Compile Include="Installers\CommandHandlers.cs" />
+    <Compile Include="Mappings\Commands\MapToUpdateProductCommand.cs" />
     <Compile Include="Models\ManufacturerResponse.cs" />
     <Compile Include="Providers\Links\CreateLinkToManufacturerOnProduct.cs" />
     <Compile Include="Models\ManufacturersResponse.cs" />

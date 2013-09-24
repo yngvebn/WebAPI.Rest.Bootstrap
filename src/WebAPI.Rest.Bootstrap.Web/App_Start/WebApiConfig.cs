@@ -27,6 +27,7 @@ namespace WebAPI.Rest.Bootstrap.Web.App_Start
 
             container.Register(Component.For<HttpRouteCollection>().Instance(config.Routes));
             container.Register(Component.For<HttpConfiguration>().Instance(config));
+            container.Register(Component.For<IWindsorContainer>().Instance(container));
 
             container.ResolveAll(typeof(IFilter)).Cast<IFilter>().ForEach(config.Filters.Add);
         }
