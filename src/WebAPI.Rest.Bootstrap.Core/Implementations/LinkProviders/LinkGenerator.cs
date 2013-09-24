@@ -66,7 +66,8 @@ namespace WebAPI.Rest.Bootstrap.Implementations.LinkProviders
         {
             foreach(var controller in _controllers)
             {
-                var method = controller.GetType().GetMethods().SingleOrDefault(action => action.ReturnType == typeof(HttpResponseMessage<>).MakeGenericType(linkResourceType));
+                var methods = controller.GetType().GetMethods().Where(action => action.ReturnType == typeof(HttpResponseMessage<>).MakeGenericType(linkResourceType));
+                var method = methods.SingleOrDefault(m => m.GetCustomAttributes(typeof (HttpGetAttribute), false).Any());
                 if (method != null)
                     return method;
             }
