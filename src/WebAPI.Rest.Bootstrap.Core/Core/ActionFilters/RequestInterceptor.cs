@@ -48,7 +48,7 @@ namespace WebAPI.Rest.Bootstrap.Core.ActionFilters
 
         public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
         {
-            if (actionExecutedContext.Request.Method != HttpMethod.Put || actionExecutedContext.Request.Method == HttpMethod.Post)
+            if (actionExecutedContext.Request.Method == HttpMethod.Put || actionExecutedContext.Request.Method == HttpMethod.Post)
             {
                 var arguments = actionExecutedContext.ActionContext.ActionArguments;
                 object requestObject = FindObjects(arguments, false).SingleOrDefault().Value;
