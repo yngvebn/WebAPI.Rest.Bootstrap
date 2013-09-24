@@ -37,36 +37,39 @@ namespace WebAPI.Rest.Bootstrap.Core.ActionFilters
 
         public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
         {
-            var returnType = actionExecutedContext.ActionContext.ActionDescriptor.ReturnType;
-            var innerType = returnType.GetGenericArguments().First();
-            var destinationMap = AutoMapper.Mapper.GetAllTypeMaps().SingleOrDefault(map => map.DestinationType == innerType);
-
-
-            if (destinationMap == null)
+            if (actionExecutedContext.Request.Method == HttpMethod.Get)
             {
-                if (!Configuration.RequiresContractMapping)
+                var returnType = actionExecutedContext.ActionContext.ActionDescriptor.ReturnType;
+                var innerType = returnType.GetGenericArguments().First();
+                var destinationMap = AutoMapper.Mapper.GetAllTypeMaps().SingleOrDefault(map => map.DestinationType == innerType);
+
+
+                if (destinationMap == null)
                 {
-                    AutoMapper.Mapper.CreateMap(innerType, innerType);
-                    destinationMap = AutoMapper.Mapper.GetAllTypeMaps().SingleOrDefault(map => map.DestinationType == innerType);
+                    if (!Configuration.RequiresContractMapping)
+                    {
+                        AutoMapper.Mapper.CreateMap(innerType, innerType);
+                        destinationMap = AutoMapper.Mapper.GetAllTypeMaps().SingleOrDefault(map => map.DestinationType == innerType);
+                    }
+                    else
+                    {
+                        throw new ResponseMapNotFoundException(
+                         string.Format("No map was found to map a contract to {0}", innerType), innerType);
+                    }
                 }
-                else
-                {
-                    throw new ResponseMapNotFoundException(
-                     string.Format("No map was found to map a contract to {0}", innerType), innerType);
-                }
+
+
+
+                var contract = _contractConstructors.ConstructContractFromRouteData(destinationMap.SourceType, actionExecutedContext.ActionContext);
+
+                _dataProviders.FillModelFromProviders(contract.GetType(), contract);
+
+                var response = _mapper.Map(contract, contract.GetType(), innerType);
+                _linkPopulator.Populate(response.GetType(), response);
+
+                response = Explode(response);
+                actionExecutedContext.Response.Content = new ObjectContent(response.GetType(), response, _configuration.Formatters.JsonFormatter);
             }
-
-
-
-            var contract = _contractConstructors.ConstructContractFromRouteData(destinationMap.SourceType, actionExecutedContext.ActionContext);
-
-            _dataProviders.FillModelFromProviders(contract.GetType(), contract);
-
-            var response = _mapper.Map(contract, contract.GetType(), innerType);
-            _linkPopulator.Populate(response.GetType(), response);
-
-            response = Explode(response);
-            actionExecutedContext.Response.Content = new ObjectContent(response.GetType(), response, _configuration.Formatters.JsonFormatter);
         }
 
         private object Explode(object response)
