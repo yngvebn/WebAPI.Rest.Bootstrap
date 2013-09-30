@@ -2,6 +2,6 @@ namespace WebAPI.Rest.Bootstrap.Core.Commands
 {
     public interface ICommandHandler<in T>
     {
-        object Handle(T command);
+        System.Object Handle(T command);
     }
 }

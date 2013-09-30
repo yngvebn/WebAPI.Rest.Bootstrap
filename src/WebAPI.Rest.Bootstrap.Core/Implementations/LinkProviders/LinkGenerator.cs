@@ -45,7 +45,7 @@ namespace WebAPI.Rest.Bootstrap.Implementations.LinkProviders
 
         private string ConstructUrl<T>(T onModel, IHttpRoute route)
         {
-            return RouteHelpers.Link(route.RouteTemplate, onModel);
+            return "/"+RouteHelpers.Link(route.RouteTemplate, onModel);
         }
 
         private IHttpRoute FindRouteThatPointsTo(MethodInfo action)
