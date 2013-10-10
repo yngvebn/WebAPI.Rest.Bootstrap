@@ -9,6 +9,7 @@ using WebAPI.Rest.Bootstrap.Core.Attributes;
 using WebAPI.Rest.Bootstrap.Core.Commands;
 using WebAPI.Rest.Bootstrap.Core.Exceptions;
 using WebAPI.Rest.Bootstrap.Core.Models;
+using WebAPI.Rest.Bootstrap.Implementations.LinkProviders;
 using WebAPI.Rest.Bootstrap.Interfaces.ContractConstructor;
 using WebAPI.Rest.Bootstrap.Interfaces.DataProvider;
 using WebAPI.Rest.Bootstrap.Interfaces.LinkProvider;
@@ -49,6 +50,13 @@ namespace WebAPI.Rest.Bootstrap.Core.ActionFilters
         public override void OnActionExecuted(HttpActionExecutedContext actionExecutedContext)
         {
             HttpMethod httpMethod = actionExecutedContext.Request.Method;
+            IEnumerable<string> linkStyle;
+            var linkStyleHeader = actionExecutedContext.Request.Headers.TryGetValues("X-Api-Linkstyle", out linkStyle);
+            LinkArgumentStyle linkArgumentStyle = LinkArgumentStyle.Normal;
+            if(linkStyle != null)
+            {
+                linkArgumentStyle = linkStyle.First().Equals("angular", StringComparison.InvariantCultureIgnoreCase) ? LinkArgumentStyle.Angular : LinkArgumentStyle.Normal;
+            }
             if (httpMethod == HttpMethod.Put || httpMethod == HttpMethod.Post || httpMethod == HttpMethod.Delete)
             {
                 var arguments = actionExecutedContext.ActionContext.ActionArguments;
@@ -74,7 +82,7 @@ namespace WebAPI.Rest.Bootstrap.Core.ActionFilters
                         var returnObject = Activator.CreateInstance(innerType);
                         AutoMapper.Mapper.Map(result.Data, returnObject, destinationMap.SourceType,
                                               destinationMap.DestinationType);
-                        _linkPopulator.Populate(innerType, returnObject);
+                        _linkPopulator.Populate(innerType, returnObject, linkArgumentStyle);
                         actionExecutedContext.Response.StatusCode = httpMethod == HttpMethod.Post
                                                                         ? HttpStatusCode.Created
                                                                         : HttpStatusCode.OK;
@@ -127,13 +135,13 @@ namespace WebAPI.Rest.Bootstrap.Core.ActionFilters
                 _dataProviders.FillModelFromProviders(contract.GetType(), contract);
 
                 var response = _mapper.Map(contract, contract.GetType(), innerType);
-                _linkPopulator.Populate(response.GetType(), response);
+                _linkPopulator.Populate(response.GetType(), response, linkArgumentStyle);
 
                 response = Explode(response);
                 actionExecutedContext.Response.Content = new ObjectContent(response.GetType(), response, _configuration.Formatters.JsonFormatter);
             }
         }
-
+            
         private Dictionary<string, object> FindObjects(Dictionary<string, object> arguments, bool isSystemType)
         {
             Dictionary<string, object> dict = new Dictionary<string, object>();

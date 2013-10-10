@@ -1,6 +1,7 @@
 using System;
 using System.Web.Http.Routing;
 using WebAPI.Rest.Bootstrap.Core.Models;
+using WebAPI.Rest.Bootstrap.Implementations.LinkProviders;
 
 namespace WebAPI.Rest.Bootstrap.Core.Linking
 {
@@ -25,9 +26,9 @@ namespace WebAPI.Rest.Bootstrap.Core.Linking
 
         public LinkTo LinkType { get; private set; }
 
-        public Link GetLink(IHttpRoute linkRoute, object o)
+        public Link GetLink(IHttpRoute linkRoute, object o, LinkArgumentStyle linkArgumentStyle)
         {
-            return new Link(Name, RouteHelpers.Link(linkRoute.RouteTemplate, o));
+            return new Link(Name, RouteHelpers.Link(linkRoute.RouteTemplate, o, linkArgumentStyle));
         }
     }
 }

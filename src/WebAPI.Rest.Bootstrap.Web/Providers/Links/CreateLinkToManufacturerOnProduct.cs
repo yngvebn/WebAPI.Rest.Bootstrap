@@ -10,7 +10,7 @@ namespace WebAPI.Rest.Bootstrap.Web.Providers.Links
     {
         public void Generate(LinksToAttribute linkResource, ProductResponse model, IHttpRoute linkRoute)
         {
-            model.AddLink(linkResource.GetLink(linkRoute, new {id = model.Manufacturer + "_Id"}));
+            model.AddLink(linkResource.GetLink(linkRoute, new {id = model.Manufacturer + "_Id"}, LinkArgumentStyle.Normal));
         }
     }
 }

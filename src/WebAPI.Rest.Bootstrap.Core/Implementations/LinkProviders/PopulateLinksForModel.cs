@@ -19,17 +19,17 @@ namespace WebAPI.Rest.Bootstrap.Implementations.LinkProviders
             _linkGenerators = linkGenerators;
         }
 
-        public void Populate(Type modelType, object model)
+        public void Populate(Type modelType, object model, LinkArgumentStyle linkArgumentStyle)
         {
 
             if (IsListOrArray(modelType))
             {
-                PopulateList(modelType, model);
+                PopulateList(modelType, model, linkArgumentStyle);
             }
             else
             {
                 if (!modelType.IsSealed && model != null)
-                    modelType.GetProperties().ForEach(propertyInfo => Populate(propertyInfo.PropertyType, propertyInfo.GetValue(model, null)));
+                    modelType.GetProperties().ForEach(propertyInfo => Populate(propertyInfo.PropertyType, propertyInfo.GetValue(model, null), linkArgumentStyle));
 
                 var linkAttributes = modelType.GetCustomAttributes(typeof(LinksToAttribute), true).Cast<LinksToAttribute>();
                 foreach (var linkAttribute in linkAttributes)
@@ -43,18 +43,18 @@ namespace WebAPI.Rest.Bootstrap.Implementations.LinkProviders
                     if (linkGenerator != null)
                     {
                         var route = _linkGenerator.FindHttpRoute(linkAttribute.ResponseType);
-                        linkGenerator.GetType().GetMethod("Generate").Invoke(linkGenerator, new object[] { linkAttribute, model, route });
+                        linkGenerator.GetType().GetMethod("Generate").Invoke(linkGenerator, new object[] { linkAttribute, model, route, linkArgumentStyle });
                     }
                     else
                     {
                         MethodInfo generic = _linkGenerator.GetType().GetMethod("Generate").MakeGenericMethod(modelType);
                         if (linkAttribute.LinkType == LinkTo.Resource)
                         {
-                            generic.Invoke(_linkGenerator, new object[] { linkAttribute.ResponseType, linkAttribute.Name, model });
+                            generic.Invoke(_linkGenerator, new object[] { linkAttribute.ResponseType, linkAttribute.Name, model, linkArgumentStyle });
                         }
                         else
                         {
-                            generic.Invoke(_linkGenerator, new object[] { modelType, linkAttribute.LinkType.ToString(), model });
+                            generic.Invoke(_linkGenerator, new object[] { modelType, linkAttribute.LinkType.ToString(), model, linkArgumentStyle });
                         }
                     }
 
@@ -62,7 +62,7 @@ namespace WebAPI.Rest.Bootstrap.Implementations.LinkProviders
             }
         }
 
-        private void PopulateList(Type type, dynamic model)
+        private void PopulateList(Type type, dynamic model, LinkArgumentStyle linkArgumentStyle)
         {
             if (model == null) return;
 
@@ -74,7 +74,7 @@ namespace WebAPI.Rest.Bootstrap.Implementations.LinkProviders
             Type listType = type.IsArray ? type.GetElementType() : type.GetGenericArguments()[0];
             foreach (object item in model)
             {
-                Populate(listType, item);
+                Populate(listType, item, linkArgumentStyle);
             }
 
 

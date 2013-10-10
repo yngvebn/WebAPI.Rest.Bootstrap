@@ -13,6 +13,12 @@ using WebAPI.Rest.Bootstrap.Interfaces.LinkProvider;
 
 namespace WebAPI.Rest.Bootstrap.Implementations.LinkProviders
 {
+    public enum LinkArgumentStyle
+    {
+        Normal = 0,
+        Angular = 1
+    }
+
     public class LinkGenerator: ILinkGenerator
     {
         private readonly HttpRouteCollection _routeCollection;
@@ -35,17 +41,17 @@ namespace WebAPI.Rest.Bootstrap.Implementations.LinkProviders
             return route;
         }
 
-        public void Generate<T>(Type linkResourceType, string resourceName, T onModel)
+        public void Generate<T>(Type linkResourceType, string resourceName, T onModel, LinkArgumentStyle linkArgumentStyle)
             where T : BaseApiResponse
         {
             var route = FindHttpRoute(linkResourceType);
-            onModel.AddLink(resourceName, ConstructUrl(onModel, route));
+            onModel.AddLink(resourceName, ConstructUrl(onModel, route, linkArgumentStyle));
                 
         }
 
-        private string ConstructUrl<T>(T onModel, IHttpRoute route)
+        private string ConstructUrl<T>(T onModel, IHttpRoute route, LinkArgumentStyle linkArgumentStyle)
         {
-            return "/"+RouteHelpers.Link(route.RouteTemplate, onModel);
+            return "/"+RouteHelpers.Link(route.RouteTemplate, onModel, linkArgumentStyle);
         }
 
         private IHttpRoute FindRouteThatPointsTo(MethodInfo action)
